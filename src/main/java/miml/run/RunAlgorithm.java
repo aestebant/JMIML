@@ -26,7 +26,7 @@ import weka.core.Utils;
 /**
  * Class that allow run any algorithm of the library configured by a file
  * configuration.
- * 
+ *
  * @author Alvaro A. Belmonte
  * @author Amelia Zafra
  * @author Eva Gigaja
@@ -49,13 +49,12 @@ public class RunAlgorithm {
 			IMIMLClassifier classifier = loader.loadClassifier();
 
 			System.out.println("" + new Date() + ": " + "Loading evaluation method");
-			IEvaluator evaluator = loader.loadEvaluator();
-			
+			IEvaluator<?> evaluator = loader.loadEvaluator();
+
 			System.out.println("" + new Date() + ": " + "Loading report");
 			IReport report = loader.loadReport();
-			
-			evaluator.runExperiment(classifier);
 
+			evaluator.runExperiment(classifier);
 			report.saveReport(report.toCSV(evaluator));
 			System.out.println("" + new Date() + ": " + "Experiment ended");
 		} catch (Exception e) {
