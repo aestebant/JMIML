@@ -22,9 +22,9 @@ import org.apache.commons.configuration2.Configuration;
 import miml.classifiers.miml.IMIMLClassifier;
 import miml.classifiers.miml.MIMLClassifier;
 import miml.core.IConfiguration;
+import miml.core.Utils;
 import miml.data.MIMLBag;
 import miml.data.MIMLInstances;
-import miml.data.Utils;
 import mulan.classifier.InvalidDataException;
 import mulan.classifier.MultiLabelOutput;
 import weka.core.Instances;
@@ -68,7 +68,7 @@ public class MIMLBagging extends MIMLClassifier {
 	int samplePercentage = 100;
 
 	/**
-	 * Number of classifies in the ensemble.
+	 * Number of classifiers in the ensemble.
 	 */
 	protected int numClassifiers = 5;
 
@@ -286,7 +286,7 @@ public class MIMLBagging extends MIMLClassifier {
 	}
 
 	/**
-	 * Stablishes whether confidences or bipartions are used to combine classifiers
+	 * Stablishes whether confidences or bipartitions are used to combine classifiers
 	 * in the ensemble.
 	 *
 	 * @param useConfidences The value of the property.

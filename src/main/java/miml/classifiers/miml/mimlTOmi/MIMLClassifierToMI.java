@@ -32,7 +32,7 @@ import java.util.Objects;
 
 /**
  * <p>
- * Class implementing the degenerative algorithm for MIML data to solve it with
+ * Class implementing the transformation algorithm for MIML data to solve it with
  * MI learning. For more information, see <em>Zhou, Z. H., &#38; Zhang, M. L.
  * (2007). Multi-instance multi-label learning with application to scene
  * classification. In Advances in neural information processing systems (pp.
@@ -104,7 +104,7 @@ public class MIMLClassifierToMI extends MIMLClassifier {
 	@Override
 	public void configure(Configuration configuration) {
 		// Get the transformation classifier method
-		String transformName = configuration.getString("transformMethod[@name]");
+		String transformName = configuration.getString("transformationMethod[@name]");
 		// Instantiate the transformation classifier class used in the experiment
 		Class<? extends MultiLabelLearner> clsClass = null;
 		try {
@@ -148,7 +148,7 @@ public class MIMLClassifierToMI extends MIMLClassifier {
 		if (!(transformationClassifier instanceof TransformationBasedMultiLabelLearner)) {
 			try {
 				throw new Exception(
-						"Transformation method must be a instance of TransformationBasedMultiLabelLearner class");
+						"Transformation method must be an instance of TransformationBasedMultiLabelLearner class");
 			} catch (Exception e) {
 				e.printStackTrace();
 				System.exit(1);
@@ -156,7 +156,7 @@ public class MIMLClassifierToMI extends MIMLClassifier {
 		}
 
 		ConfigParameters.setClassifierName(baseName);
-		ConfigParameters.setTransformMethod(transformName);
-		ConfigParameters.setIsDegenerative(true);
+		ConfigParameters.setTransformationMethod(transformName);
+		ConfigParameters.setIsTransformation(true);
 	}
 }

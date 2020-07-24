@@ -701,7 +701,7 @@ public class MLStatistics {
 	}
 
 	/**
-	 * Returns cooCurrenceMatrix in textual representation. It requires the method
+	 * Returns coocurrenceMatrix in textual representation. It requires the method
 	 * calculateCoocurrence to be previously called.
 	 * 
 	 * @return string
@@ -718,7 +718,7 @@ public class MLStatistics {
 	}
 
 	/**
-	 * Returns cooCurrenceMatrix in CSV representation. It requires the method
+	 * Returns coocurrenceMatrix in CSV representation. It requires the method
 	 * calculateCoocurrence to be previously called.
 	 * 
 	 * @return string
