@@ -15,19 +15,9 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
 		<!-- Maven plugins -->
-		<compiler.plugin.version>3.8.0</compiler.plugin.version>
-
-		<maven.compiler.source>1.8</maven.compiler.source>
-		<maven.compiler.target>1.8</maven.compiler.target>
+		<compiler.plugin.version>3.8.1</compiler.plugin.version>
+		<install.plugin.version>3.0.0-M1</install.plugin.version>
 	</properties>
-
-
-	<repositories>
-		<repository>
-			<id>local</id>
-			<url>file://${basedir}/src/main/resources</url>
-		</repository>
-	</repositories>
 
 	<dependencies>
 		<!-- https://mvnrepository.com/artifact/junit/junit -->
@@ -119,22 +109,33 @@
 					<target>1.8</target>
 				</configuration>
 			</plugin>
-	
-			<!-- GENERATE SOURCE CODE -->
+
+			<!-- ADD MULAN AS MAVEN DEPENDENCY -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-source-plugin</artifactId>
+				<artifactId>maven-install-plugin</artifactId>
+				<version>${install.plugin.version}</version>
+				<configuration>
+					<groupId>mulan</groupId>
+					<artifactId>mulan</artifactId>
+					<version>1.5.0</version>
+					<packaging>jar</packaging>
+					<file>${basedir}/lib/mulan-1-5-0.jar</file>
+					<sources>${basedir}/lib/mulan-1-5-0-src.jar</sources>
+					<generatePom>true</generatePom>
+				</configuration>
 				<executions>
 					<execution>
-						<id>attach-sources</id>
 						<goals>
-							<goal>jar</goal>
+							<goal>install-file</goal>
 						</goals>
+						<!-- For adding the dependency automatically specify the clean phase -->
+						<phase>clean</phase>
 					</execution>
 				</executions>
 			</plugin>
 
-			<!-- CREATE JAR WITH DEPENDENCIES -->
+			<!-- GENERATE JAR WITH DEPENDENCIES -->
 			<plugin>
 				<artifactId>maven-assembly-plugin</artifactId>
 				<configuration>
