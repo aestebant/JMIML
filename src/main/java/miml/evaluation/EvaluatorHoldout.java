@@ -15,13 +15,6 @@
 
 package miml.evaluation;
 
-import java.io.File;
-import java.util.Date;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
-
-import org.apache.commons.configuration2.Configuration;
-
 import miml.classifiers.miml.IMIMLClassifier;
 import miml.core.ConfigParameters;
 import miml.core.IConfiguration;
@@ -29,6 +22,12 @@ import miml.core.Utils;
 import miml.data.MIMLInstances;
 import mulan.evaluation.Evaluation;
 import mulan.evaluation.Evaluator;
+import org.apache.commons.configuration2.Configuration;
+
+import java.io.File;
+import java.util.Date;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 // TODO: Auto-generated Javadoc
 /**
@@ -204,9 +203,7 @@ public class EvaluatorHoldout implements IConfiguration, IEvaluator<Evaluation> 
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-
 		ConfigParameters.setDataFileName(new File(arffFileTrain).getName());
-
 	}
 
 }

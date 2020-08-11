@@ -14,8 +14,6 @@
  */
 package miml.classifiers.miml;
 
-import java.util.Date;
-
 import miml.core.IConfiguration;
 import miml.data.MIMLBag;
 import miml.data.MIMLInstances;
@@ -27,6 +25,8 @@ import mulan.data.MultiLabelInstances;
 import weka.core.Instance;
 import weka.core.Instances;
 import weka.core.SerializedObject;
+
+import java.util.Date;
 
 /**
  * This java class is based on the mulan.data.Statistics.java class provided in
