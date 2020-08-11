@@ -23,3 +23,7 @@ hs_err_pid*
 /target
 .settings
 *.ucls
+/inProgress
+/apidoc
+/dist
+/results
