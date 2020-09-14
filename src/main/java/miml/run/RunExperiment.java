@@ -105,6 +105,9 @@ public class RunExperiment {
 		Option confStartArg = new Option("c", true, "configuration to start from");
 		options.addOption(confStartArg);
 
+		Option confEndArg = new Option("e", true, "configuration to end");
+		options.addOption(confEndArg);
+
 		Option foldStartArg = new Option("f", true, "fold to start from");
 		options.addOption(foldStartArg);
 
@@ -124,12 +127,14 @@ public class RunExperiment {
 			System.exit(1);
 		}
 
-		int confStart = Integer.parseInt(cmd.getOptionValue("c", "0"));
+		int confStart = 0;
+		int offset = Integer.parseInt(cmd.getOptionValue("c", "0"));
+		int confEnd = Integer.parseInt(cmd.getOptionValue("e", String.valueOf(configFiles.length)));
 		int foldStart = Integer.parseInt(cmd.getOptionValue("f", "1"));
 		String[] datasets = cmd.getOptionValues("d");
 
 		for (String dataset : datasets) {
-			for (int i = confStart; i < configFiles.length; ++i) {
+			for (int i = confStart + offset; i < confEnd; ++i) {
 				int jIni = 1;
 				if (i == confStart) jIni = foldStart;
 				for (int j = jIni; j <= 5; ++j) {
@@ -141,7 +146,7 @@ public class RunExperiment {
 						configuration.setProperty("evaluator.data.trainFile", datasetsPath + dataset + "/5-folds/rounds/miml_" + dataset + "_iterative_5_train_" + j + ".arff");
 						configuration.setProperty("evaluator.data.testFile", datasetsPath + dataset + "/5-folds/rounds/miml_" + dataset + "_iterative_5_test_" + j + ".arff");
 						configuration.setProperty("evaluator.data.xmlFile", datasetsPath + dataset + "/5-folds/miml_" + dataset + ".xml");
-						configuration.setProperty("report.fileName", "results/" + dataset + "-res.csv");
+						configuration.setProperty("report.fileName", "results2/" + dataset + "-res.csv");
 
 						IMIMLClassifier classifier = loader.loadClassifier();
 						IEvaluator<?> evaluator = loader.loadEvaluator();
