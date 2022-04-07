@@ -15,10 +15,6 @@
 
 package miml.classifiers.miml.mimlTOml;
 
-import java.util.Objects;
-
-import org.apache.commons.configuration2.Configuration;
-
 import miml.classifiers.miml.MIMLClassifier;
 import miml.core.ConfigParameters;
 import miml.core.Params;
@@ -29,7 +25,11 @@ import miml.transformation.mimlTOml.MIMLtoML;
 import mulan.classifier.MultiLabelLearner;
 import mulan.classifier.MultiLabelOutput;
 import mulan.data.MultiLabelInstances;
+import org.apache.commons.configuration2.Configuration;
 import weka.core.Instance;
+
+import java.lang.reflect.InvocationTargetException;
+import java.util.Objects;
 
 /**
  * <p>
@@ -159,6 +159,15 @@ public class MIMLClassifierToML extends MIMLClassifier {
 		ConfigParameters.setClassifierName(classifierName);
 		ConfigParameters.setTransformationMethod(transformerName);
 		ConfigParameters.setIsTransformation(true);
+	}
+
+	public void setBaseClassifierParams(Params params) {
+		try {
+			this.baseClassifier = Objects.requireNonNull(this.baseClassifier.getClass()).getConstructor(params.getClasses())
+					.newInstance(params.getObjects());
+		} catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+			e.printStackTrace();
+		}
 	}
 
 }

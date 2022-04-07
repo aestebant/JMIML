@@ -7,8 +7,10 @@ import miml.evaluation.IEvaluator;
 import mulan.evaluation.Evaluation;
 import mulan.evaluation.measure.MacroAverageMeasure;
 import mulan.evaluation.measure.Measure;
+import org.json.simple.JSONObject;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -29,10 +31,11 @@ public class ExperimentReport extends BaseMIMLReport {
             return "ERROR: evaluator not supported";
         }
 
-        boolean writeHeader = true;
-
         File file = new File(filename);
-        file.getParentFile().mkdirs();
+        if (!file.getParentFile().mkdirs()) {
+            return "ERROR: unable to create report file";
+        }
+        boolean writeHeader = true;
         try {
             writeHeader = file.createNewFile();
         } catch (IOException e) {
@@ -43,7 +46,6 @@ public class ExperimentReport extends BaseMIMLReport {
         MIMLInstances data = ((EvaluatorHoldout) evaluator).getData();
 
         StringBuilder result = new StringBuilder();
-        String measureName;
 
         // All evaluator measures
         List<Measure> measures = evaluationHoldout.getMeasures();
@@ -61,7 +63,7 @@ public class ExperimentReport extends BaseMIMLReport {
             }
             // Write measure's names
             for (Measure m : measures) {
-                measureName = m.getName();
+                String measureName = m.getName();
                 result.append(measureName).append(",");
 
                 if (m instanceof MacroAverageMeasure && this.labels) {
@@ -95,6 +97,30 @@ public class ExperimentReport extends BaseMIMLReport {
         Files.write(Paths.get(filename), result.toString().getBytes(), StandardOpenOption.APPEND);
         System.out.println("" + new Date() + ": " + "Experiment results saved in " + filename);
 
+        return result.toString();
+    }
+
+    public String toJson(IEvaluator evaluator) throws Exception {
+        if (!(evaluator instanceof EvaluatorHoldout))
+            return "ERROR: evaluator not supported";
+        EvaluatorHoldout holdoutEval = (EvaluatorHoldout) evaluator;
+
+        JSONObject result = new JSONObject();
+        result.put("train_time", holdoutEval.getTrainTime());
+        result.put("test_time", holdoutEval.getTestTime());
+
+        // All evaluator measures
+        List<Measure> measures = holdoutEval.getEvaluation().getMeasures();
+        // Measures selected by user
+        if (this.measures != null)
+            measures = filterMeasures(measures);
+        for (Measure m : measures)
+            result.put(m.getName(), m.getValue());
+
+        FileWriter file = new FileWriter(filename);
+        file.write(result.toJSONString());
+        file.flush();
+        file.close();
         return result.toString();
     }
 }
