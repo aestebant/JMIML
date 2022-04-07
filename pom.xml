@@ -101,6 +101,12 @@
 			<artifactId>mulan</artifactId>
 			<version>1.5.0</version>
 		</dependency>
+
+		<dependency>
+			<groupId>com.googlecode.json-simple</groupId>
+			<artifactId>json-simple</artifactId>
+			<version>1.1.1</version>
+		</dependency>
 	</dependencies>
 
 	<build>
@@ -147,7 +153,7 @@
 				<configuration>
 					<archive>
 						<manifest>
-							<mainClass>miml.run.RunAlgorithm</mainClass>
+							<mainClass>miml.run.RunSignac</mainClass>
 						</manifest>
 					</archive>
 					<descriptorRefs>
