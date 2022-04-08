@@ -130,7 +130,6 @@ public class MIMLClassifierToML extends MIMLClassifier {
 		}
 
 		Params params = Utils.readMultiLabelLearnerParams(configuration.subset("multiLabelClassifier"));
-
 		try {
 			this.baseClassifier = Objects.requireNonNull(classifierClass).getConstructor(params.getClasses())
 					.newInstance(params.getObjects());
@@ -161,13 +160,43 @@ public class MIMLClassifierToML extends MIMLClassifier {
 		ConfigParameters.setIsTransformation(true);
 	}
 
-	public void setBaseClassifierParams(Params params) {
+	public void configure(Configuration configuration, Params params) {
+		// Get the string with the base classifier class
+		String classifierName = configuration.getString("multiLabelClassifier[@name]");
+		// Instance class
+		Class<? extends MultiLabelLearner> classifierClass = null;
 		try {
-			this.baseClassifier = Objects.requireNonNull(this.baseClassifier.getClass()).getConstructor(params.getClasses())
+			classifierClass = Class.forName(classifierName).asSubclass(MultiLabelLearner.class);
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+			System.exit(1);
+		}
+		try {
+			this.baseClassifier = Objects.requireNonNull(classifierClass).getConstructor(params.getClasses())
 					.newInstance(params.getObjects());
 		} catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
 			e.printStackTrace();
 		}
+		// Get the string with the base classifier class
+		String transformerName = configuration.getString("transformationMethod[@name]");
+		// Instance class
+		Class<? extends MIMLtoML> transformerClass = null;
+		try {
+			transformerClass = Class.forName(transformerName).asSubclass(MIMLtoML.class);
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+			System.exit(1);
+		}
+		try {
+			this.transformationMethod = Objects.requireNonNull(transformerClass).getConstructor().newInstance();
+		} catch (Exception e) {
+			e.printStackTrace();
+			System.exit(1);
+		}
+
+		ConfigParameters.setClassifierName(classifierName);
+		ConfigParameters.setTransformationMethod(transformerName);
+		ConfigParameters.setIsTransformation(true);
 	}
 
 }

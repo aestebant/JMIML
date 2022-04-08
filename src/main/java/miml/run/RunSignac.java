@@ -1,7 +1,6 @@
 package miml.run;
 
 import miml.classifiers.miml.IMIMLClassifier;
-import miml.classifiers.miml.mimlTOml.MIMLClassifierToML;
 import miml.core.ConfigLoader;
 import miml.core.Params;
 import miml.core.Utils;
@@ -96,10 +95,14 @@ public class RunSignac {
 		configuration.setProperty("report.fileName", cmd.getOptionValue("r"));
 
 		try {
-			IMIMLClassifier mimlExp = loader.loadClassifier();
+			IMIMLClassifier mimlExp;
 			if (cmd.getOptionValue("l").equals("ml")) {
+				assert mlParams != null;
 				Params params = Utils.readMultiLabelLearnerParams(mlParams);
-				((MIMLClassifierToML) mimlExp).setBaseClassifierParams(params);
+				mimlExp = loader.loadClassifier(params);
+			}
+			else {
+				mimlExp = loader.loadClassifier();
 			}
 			IEvaluator<?> mimlEvaluator = loader.loadEvaluator();
 			mimlEvaluator.runExperiment(mimlExp);

@@ -15,8 +15,10 @@
 
 package miml.core;
 
-import java.io.File;
-
+import miml.classifiers.miml.IMIMLClassifier;
+import miml.classifiers.miml.mimlTOml.MIMLClassifierToML;
+import miml.evaluation.IEvaluator;
+import miml.report.IReport;
 import org.apache.commons.configuration2.Configuration;
 import org.apache.commons.configuration2.XMLConfiguration;
 import org.apache.commons.configuration2.builder.FileBasedConfigurationBuilder;
@@ -24,11 +26,7 @@ import org.apache.commons.configuration2.builder.fluent.Parameters;
 import org.apache.commons.configuration2.builder.fluent.XMLBuilderParameters;
 import org.apache.commons.configuration2.ex.ConfigurationException;
 
-import miml.classifiers.miml.IMIMLClassifier;
-import miml.classifiers.miml.mimlTOmi.MIMLClassifierToMI;
-import miml.classifiers.miml.mimlTOml.MIMLClassifierToML;
-import miml.evaluation.IEvaluator;
-import miml.report.IReport;
+import java.io.File;
 
 /**
  * Class used to read a xml file and configure an experiment.
@@ -107,7 +105,22 @@ public class ConfigLoader {
 		// Configure the classifier
 		if (classifier instanceof IMIMLClassifier)
 			((IConfiguration) classifier).configure(configuration.subset("classifier"));
-						
+
+
+		ConfigParameters.setAlgorithmName(classifier.getClass().getSimpleName());
+
+		return classifier;
+	}
+
+	public IMIMLClassifier loadClassifier(Params params) throws Exception {
+		IMIMLClassifier classifier = null;
+		String clsName = configuration.getString("classifier[@name]");
+		// Instantiate the classifier class used in the experiment
+		Class<? extends IMIMLClassifier> clsClass = (Class<? extends IMIMLClassifier>) Class.forName(clsName);
+		classifier = clsClass.newInstance();
+		// Configure the classifier
+		if (classifier instanceof MIMLClassifierToML)
+			((MIMLClassifierToML) classifier).configure(configuration.subset("classifier"), params);
 
 		ConfigParameters.setAlgorithmName(classifier.getClass().getSimpleName());
 
