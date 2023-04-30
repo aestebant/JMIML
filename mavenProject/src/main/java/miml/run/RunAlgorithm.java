@@ -53,12 +53,6 @@ public class RunAlgorithm {
 
 			System.out.println("" + new Date() + ": " + "Loading report");
 			IReport report = loader.loadReport();
-<<<<<<< HEAD:src/main/java/miml/run/RunAlgorithm.java
-=======
-
-			evaluator.runExperiment(classifier);
->>>>>>> b94489bddc6f4b5883024fd668f3496170c979c2:mavenProject/src/main/java/miml/run/RunAlgorithm.java
-
 			evaluator.runExperiment(classifier);
 			report.saveReport(report.toCSV(evaluator));
 			System.out.println("" + new Date() + ": " + "Experiment ended");
