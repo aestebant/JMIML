@@ -20,13 +20,11 @@ hs_err_pid*
 # Custom
 .project
 .classpath
-/target
 .settings
+.idea/
+*.iml
+target/
+mavenProject/target/
+results/
+data/
 *.ucls
-/inProgress
-/apidoc
-/dist
-/results
-/datasets
-/data
-/configExp
