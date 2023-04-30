@@ -107,8 +107,6 @@
 			<artifactId>javabuilder</artifactId>
 			<version>1.0</version>
 		</dependency>
-
-
 	</dependencies>
 
 	<build>
@@ -124,31 +122,52 @@
 				</configuration>
 			</plugin>
 
-<<<<<<< HEAD:pom.xml
-			<!-- ADD MULAN AS MAVEN DEPENDENCY -->
-=======
-			<!-- GENERATE SOURCE CODE -->
->>>>>>> b94489bddc6f4b5883024fd668f3496170c979c2:mavenProject/pom.xml
+			<!-- MANUAL DEPENDENCIES NOT LOADED FROM MAVEN -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-install-plugin</artifactId>
 				<version>${install.plugin.version}</version>
-				<configuration>
-					<groupId>mulan</groupId>
-					<artifactId>mulan</artifactId>
-					<version>1.5.0</version>
-					<packaging>jar</packaging>
-					<file>${basedir}/lib/mulan-1-5-0.jar</file>
-					<sources>${basedir}/lib/mulan-1-5-0-src.jar</sources>
-					<generatePom>true</generatePom>
-				</configuration>
 				<executions>
 					<execution>
-						<goals>
-							<goal>install-file</goal>
-						</goals>
+						<id>install1</id>
 						<!-- For adding the dependency automatically specify the clean phase -->
 						<phase>clean</phase>
+						<goals><goal>install-file</goal></goals>
+						<configuration>
+							<groupId>mulan</groupId>
+							<artifactId>mulan</artifactId>
+							<version>1.5.0</version>
+							<packaging>jar</packaging>
+							<file>src/main/resources/mulan-1-5-0.jar</file>
+							<sources>src/main/resources/mulan-1-5-0-src.jar</sources>
+							<generatePom>true</generatePom>
+						</configuration>
+					</execution>
+					<execution>
+						<id>install2</id>
+						<phase>clean</phase>
+						<goals><goal>install-file</goal></goals>
+						<configuration>
+							<groupId>MWalgorithms</groupId>
+							<artifactId>MWalgorithms</artifactId>
+							<version>1.0</version>
+							<packaging>jar</packaging>
+							<file>src/main/resources/MWAlgorithms.jar</file>
+							<generatePom>true</generatePom>
+						</configuration>
+					</execution>
+					<execution>
+						<id>install3</id>
+						<phase>clean</phase>
+						<goals><goal>install-file</goal></goals>
+						<configuration>
+							<groupId>javabuilder</groupId>
+							<artifactId>javabuilder</artifactId>
+							<version>1.0</version>
+							<packaging>jar</packaging>
+							<file>src/main/resources/javabuilder.jar</file>
+							<generatePom>true</generatePom>
+						</configuration>
 					</execution>
 				</executions>
 			</plugin>
