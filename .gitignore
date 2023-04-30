@@ -20,9 +20,11 @@ hs_err_pid*
 # Custom
 .project
 .classpath
-target
-mavenProject/target
 .settings
-*.ucls
 .idea/
-miml.iml
+*.iml
+target/
+mavenProject/target/
+results/
+data/
+*.ucls

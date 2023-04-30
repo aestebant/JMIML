@@ -15,13 +15,6 @@
 
 package miml.evaluation;
 
-import java.io.File;
-import java.util.Date;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
-
-import org.apache.commons.configuration2.Configuration;
-
 import miml.classifiers.miml.IMIMLClassifier;
 import miml.core.ConfigParameters;
 import miml.core.IConfiguration;
@@ -29,6 +22,12 @@ import miml.data.MIMLInstances;
 import mulan.data.InvalidDataFormatException;
 import mulan.evaluation.Evaluation;
 import mulan.evaluation.Evaluator;
+import org.apache.commons.configuration2.Configuration;
+
+import java.io.File;
+import java.util.Date;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Class that allow evaluate an algorithm applying a holdout method.
@@ -184,7 +183,7 @@ public class EvaluatorHoldout implements IConfiguration, IEvaluator<Evaluation> 
 
 		String arffFileTrain = configuration.subset("data").getString("trainFile");
 		String xmlFileName = configuration.subset("data").getString("xmlFile");
-		String arffFileTest = configuration.subset("data").getString("testFile");		
+		String arffFileTest = configuration.subset("data").getString("testFile");
 
 		try {
 
@@ -214,9 +213,7 @@ public class EvaluatorHoldout implements IConfiguration, IEvaluator<Evaluation> 
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-
 		ConfigParameters.setDataFileName(new File(arffFileTrain).getName());
-
 	}
 
 }

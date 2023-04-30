@@ -1,0 +1,10 @@
+<configuration>
+    <classifier></classifier>
+    <evaluator name="miml.evaluation.EvaluatorHoldout">
+        <data></data>
+    </evaluator>
+    <report name="miml.report.ExperimentReport">
+        <standardDeviation>false</standardDeviation>
+        <measures perLabel="false"/>
+    </report>
+</configuration>
