@@ -28,3 +28,4 @@ mavenProject/target/
 results/
 data/
 *.ucls
+.DS_Store
