@@ -10,17 +10,15 @@ import org.apache.commons.cli.*;
 import org.apache.commons.configuration2.Configuration;
 import org.apache.commons.configuration2.ex.ConfigurationException;
 
-import java.util.Iterator;
-
 public class RunSignac {
 	public static void main(String[] args){
 		// -l mi -t <br/lp/classifier> -c <base classifier> -o <options>
 		// -l ml -c <base classifier> -t <arithmetic/geometric/minmax> -o <options>
-		// -l miml -c <classifier> -o <options>
 		// -a <train data> -e <test data> -x <xml file> -r <result file>
-		Option learning = new Option("l", true, "learning: mi/ml/miml");
+		Option learning = new Option("l", true, "learning: mi/ml");
 		learning.setRequired(true);
 		Option transformation = new Option("t", true, "transformation: if MI=<br/lp/classifier>, if ML=<arithmetic/geometric/minmax>");
+		transformation.setRequired(true);
 		Option classifier = new Option("c", true, "Base classifier");
 		classifier.setRequired(true);
 		Option classifierConfs = new Option("o", true, "Configurations for the base classifier");
@@ -88,17 +86,6 @@ public class RunSignac {
 				configuration.setProperty("classifier.transformationMethod[@name]", "miml.transformation.mimlTOml.GeometricTransformation");
 			else if (cmd.getOptionValue("t").equals("minmax"))
 				configuration.setProperty("classifier.transformationMethod[@name]", "miml.transformation.mimlTOml.MinMaxTransformation");
-		} else if (cmd.getOptionValue("l").equals("miml")) {
-			configuration.setProperty("classifier[@name]", cmd.getOptionValue("c"));
-			try {
-				mlParams = new ConfigLoader(cmd.getOptionValue("o")).getConfiguration();
-				for (final Iterator<String> keys = mlParams.getKeys(); keys.hasNext();) {
-					final String key = keys.next();
-					configuration.addProperty("classifier." + key, mlParams.getProperty(key));
-				}
-			} catch (ConfigurationException e) {
-				e.printStackTrace();
-			}
 		}
 
 		configuration.setProperty("evaluator.data.trainFile", cmd.getOptionValue("a"));
