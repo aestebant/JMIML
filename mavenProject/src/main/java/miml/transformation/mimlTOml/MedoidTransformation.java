@@ -134,12 +134,12 @@ public class MedoidTransformation extends MIMLtoML {
         this.dataset = dataset;
     }
 
-    public MedoidTransformation(float percentClusters, boolean normalize) throws Exception {
-        this(percentClusters, normalize, new AverageHausdorff());
+    public MedoidTransformation(float percentClusters) throws Exception {
+        this(percentClusters, false, new AverageHausdorff());
     }
 
-    public MedoidTransformation(int numClusters, boolean normalize) throws Exception {
-        this(numClusters, normalize, new AverageHausdorff());
+    public MedoidTransformation(int numClusters) throws Exception {
+        this(numClusters, false, new AverageHausdorff());
     }
 
     /**

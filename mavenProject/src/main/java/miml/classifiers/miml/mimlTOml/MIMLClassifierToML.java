@@ -177,10 +177,14 @@ public class MIMLClassifierToML extends MIMLClassifier {
 		}
 		if (transformerClass == MedoidTransformation.class) {
 			Configuration transformerConf = configuration.subset("transformationMethod");
-			float percent = transformerConf.getFloat("percentCluster");
-			boolean normalize = transformerConf.getBoolean("normalize");
+			float k = transformerConf.getFloat("k");
+			//TODO: add rest of possible constructors
 			try {
-				this.transformationMethod = Objects.requireNonNull(transformerClass).getConstructor(float.class, boolean.class).newInstance(percent, normalize);
+				if (k < 1) {
+					this.transformationMethod = Objects.requireNonNull(transformerClass).getConstructor(float.class).newInstance(k);
+				} else {
+					this.transformationMethod = Objects.requireNonNull(transformerClass).getConstructor(int.class).newInstance((int) k);
+				}
 			} catch (InstantiationException | IllegalAccessException | InvocationTargetException |
                      NoSuchMethodException e) {
 				throw new RuntimeException(e);
