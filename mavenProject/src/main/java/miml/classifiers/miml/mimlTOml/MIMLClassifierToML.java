@@ -110,7 +110,7 @@ public class MIMLClassifierToML extends MIMLClassifier {
 
 		// Deletes bagIdAttribute
 		removeFilter = new Remove();
-		int indexToRemove[] = { 0 };
+		int[] indexToRemove = { 0 };
 		removeFilter.setAttributeIndicesArray(indexToRemove);
 		removeFilter.setInputFormat(mlDataSetWithBagId.getDataSet());
 		Instances newData = Filter.useFilter(mlDataSetWithBagId.getDataSet(), removeFilter);
@@ -154,28 +154,26 @@ public class MIMLClassifierToML extends MIMLClassifier {
 		// Get the string with the base classifier class
 		String classifierName = configuration.getString("multiLabelClassifier[@name]");
 		// Instance class
-		Class<? extends MultiLabelLearner> classifierClass = null;
+		Class<? extends MultiLabelLearner> classifierClass;
 		try {
 			classifierClass = Class.forName(classifierName).asSubclass(MultiLabelLearner.class);
 		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-			System.exit(1);
+			throw new RuntimeException(e);
 		}
 		try {
 			this.baseClassifier = Objects.requireNonNull(classifierClass).getConstructor(params.getClasses())
 					.newInstance(params.getObjects());
 		} catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-			e.printStackTrace();
+			throw new RuntimeException(e);
 		}
 		// Get the string with the base classifier class
 		String transformerName = configuration.getString("transformationMethod[@name]");
 		// Instance class
-		Class<? extends MIMLtoML> transformerClass = null;
+		Class<? extends MIMLtoML> transformerClass;
 		try {
 			transformerClass = Class.forName(transformerName).asSubclass(MIMLtoML.class);
 		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-			System.exit(1);
+			throw new RuntimeException(e);
 		}
 		if (transformerClass == MedoidTransformation.class) {
 			Configuration transformerConf = configuration.subset("transformationMethod");
@@ -191,8 +189,7 @@ public class MIMLClassifierToML extends MIMLClassifier {
 			try {
 				this.transformationMethod = Objects.requireNonNull(transformerClass).getConstructor().newInstance();
 			} catch (Exception e) {
-				e.printStackTrace();
-				System.exit(1);
+				throw new RuntimeException(e);
 			}
 		}
 

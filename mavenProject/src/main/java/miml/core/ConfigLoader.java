@@ -66,24 +66,17 @@ public class ConfigLoader {
 	 * @throws ConfigurationException if occurred an error during the loading of the configuration.
 	 */
 	public ConfigLoader(String path) throws ConfigurationException {
-		
 		Parameters params = new Parameters();
-
 		XMLBuilderParameters px = params.xml();
-
-		FileBasedConfigurationBuilder<XMLConfiguration> builder = new FileBasedConfigurationBuilder<XMLConfiguration>(
-				XMLConfiguration.class);
+		FileBasedConfigurationBuilder<XMLConfiguration> builder = new FileBasedConfigurationBuilder<>(XMLConfiguration.class);
 
 		builder.configure(px.setFileName(path));
-
 		try {
 			configuration = builder.getConfiguration();
 		} catch (ConfigurationException e) {
 			e.printStackTrace();
 		}
-
 		ConfigParameters.setConfigFileName(new File(path).getName());
-
 	}
 
 	/**
@@ -94,18 +87,13 @@ public class ConfigLoader {
 	 */
 	@SuppressWarnings("unchecked")
 	public IMIMLClassifier loadClassifier() throws Exception {
-
-		IMIMLClassifier classifier = null;
-
 		String clsName = configuration.getString("classifier[@name]");
 		// Instantiate the classifier class used in the experiment
 		Class<? extends IMIMLClassifier> clsClass = (Class<? extends IMIMLClassifier>) Class.forName(clsName);
 
-		classifier = clsClass.newInstance();
+		IMIMLClassifier classifier = clsClass.getDeclaredConstructor().newInstance();
 		// Configure the classifier
-		if (classifier instanceof IMIMLClassifier)
-			((IConfiguration) classifier).configure(configuration.subset("classifier"));
-
+		((IConfiguration) classifier).configure(configuration.subset("classifier"));
 
 		ConfigParameters.setAlgorithmName(classifier.getClass().getSimpleName());
 
@@ -113,11 +101,10 @@ public class ConfigLoader {
 	}
 
 	public IMIMLClassifier loadClassifier(Params params) throws Exception {
-		IMIMLClassifier classifier = null;
 		String clsName = configuration.getString("classifier[@name]");
 		// Instantiate the classifier class used in the experiment
 		Class<? extends IMIMLClassifier> clsClass = (Class<? extends IMIMLClassifier>) Class.forName(clsName);
-		classifier = clsClass.newInstance();
+		IMIMLClassifier classifier = clsClass.getDeclaredConstructor().newInstance();
 		// Configure the classifier
 		if (classifier instanceof MIMLClassifierToML)
 			((MIMLClassifierToML) classifier).configure(configuration.subset("classifier"), params);
@@ -135,17 +122,13 @@ public class ConfigLoader {
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public IEvaluator loadEvaluator() throws Exception {
-
-		IEvaluator evaluator = null;
-
 		String evalName = configuration.getString("evaluator[@name]");
 		// Instantiate the evaluator class used in the experiment
 		Class<? extends IEvaluator> evalClass = (Class<? extends IEvaluator>) Class.forName(evalName);
 
-		evaluator = evalClass.newInstance();
+		IEvaluator evaluator = evalClass.getDeclaredConstructor().newInstance();
 		// Configure the evaluator
-		if (evaluator instanceof IEvaluator)
-			((IConfiguration) evaluator).configure(configuration.subset("evaluator"));
+		((IConfiguration) evaluator).configure(configuration.subset("evaluator"));
 
 		return evaluator;
 	}
@@ -158,19 +141,12 @@ public class ConfigLoader {
 	 */
 	@SuppressWarnings("unchecked")
 	public IReport loadReport() throws Exception {
-
-		IReport report = null;
-
 		String reportName = configuration.getString("report[@name]");
-
 		// Instantiate the report class used in the experiment
 		Class<? extends IReport> clsClass = (Class<? extends IReport>) Class.forName(reportName);
-
-		report = clsClass.newInstance();
-
+		IReport report = clsClass.getDeclaredConstructor().newInstance();
 		// Configure the report
-		if (report instanceof IReport)
-			((IConfiguration) report).configure(configuration.subset("report"));
+		((IConfiguration) report).configure(configuration.subset("report"));
 
 		return report;
 	}
