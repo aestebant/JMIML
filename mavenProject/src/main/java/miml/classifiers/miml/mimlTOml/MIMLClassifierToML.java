@@ -22,6 +22,7 @@ import miml.core.Utils;
 import miml.data.MIMLBag;
 import miml.data.MIMLInstances;
 import miml.transformation.mimlTOml.MIMLtoML;
+import miml.transformation.mimlTOml.MedoidTransformation;
 import mulan.classifier.MultiLabelLearner;
 import mulan.classifier.MultiLabelOutput;
 import mulan.data.MultiLabelInstances;
@@ -176,11 +177,23 @@ public class MIMLClassifierToML extends MIMLClassifier {
 			e.printStackTrace();
 			System.exit(1);
 		}
-		try {
-			this.transformationMethod = Objects.requireNonNull(transformerClass).getConstructor().newInstance();
-		} catch (Exception e) {
-			e.printStackTrace();
-			System.exit(1);
+		if (transformerClass == MedoidTransformation.class) {
+			Configuration transformerConf = configuration.subset("transformationMethod");
+			float percent = transformerConf.getFloat("percentCluster");
+			boolean normalize = transformerConf.getBoolean("normalize");
+			try {
+				this.transformationMethod = Objects.requireNonNull(transformerClass).getConstructor(float.class, boolean.class).newInstance(percent, normalize);
+			} catch (InstantiationException | IllegalAccessException | InvocationTargetException |
+                     NoSuchMethodException e) {
+				throw new RuntimeException(e);
+			}
+        } else {
+			try {
+				this.transformationMethod = Objects.requireNonNull(transformerClass).getConstructor().newInstance();
+			} catch (Exception e) {
+				e.printStackTrace();
+				System.exit(1);
+			}
 		}
 
 		ConfigParameters.setClassifierName(classifierName);

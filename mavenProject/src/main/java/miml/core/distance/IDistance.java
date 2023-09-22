@@ -18,6 +18,8 @@ package miml.core.distance;
 import java.io.Serializable;
 
 import miml.data.MIMLBag;
+import miml.data.MIMLInstances;
+import weka.core.Instance;
 import weka.core.Instances;
 
 /**
@@ -50,4 +52,14 @@ public interface IDistance extends Serializable {
 	 * @throws Exception if occurred an error during distance calculation.
 	 */
 	public double distance(Instances first, Instances second) throws Exception;
+
+	double distance(Instance var1, Instance var2) throws Exception;
+
+	void setInstances(MIMLInstances var1) throws Exception;
+
+	void setInstances(Instances var1) throws Exception;
+
+	void update(MIMLBag var1) throws Exception;
+
+	void update(Instance var1) throws Exception;
 }
