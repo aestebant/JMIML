@@ -16,11 +16,13 @@ public class RunSignac {
 	public static void main(String[] args){
 		// -l mi -t <br/lp/classifier> -c <base classifier> -o <options>
 		// -l ml -c <base classifier> -t <arithmetic/geometric/minmax> -o <options>
+		// -l ml -c <base classifier> -t medoid -o <options> -k <(0,1)/[1,n]>
 		// -l miml -c <classifier> -o <options>
 		// -a <train data> -e <test data> -x <xml file> -r <result file>
 		Option learning = new Option("l", true, "learning: mi/ml/miml");
 		learning.setRequired(true);
-		Option transformation = new Option("t", true, "transformation: if MI=<br/lp/classifier>, if ML=<arithmetic/geometric/minmax>");
+		Option transformation = new Option("t", true, "transformation: if MI=<br/lp/classifier>, if ML=<arithmetic/geometric/minmax/medoid>");
+		Option nClusters = new Option("k", true, "K for the medoid transformation. If 0 < k < 1 -> percentage, else fixed number of clusters");
 		Option classifier = new Option("c", true, "Base classifier");
 		classifier.setRequired(true);
 		Option classifierConfs = new Option("o", true, "Configurations for the base classifier");
@@ -36,6 +38,7 @@ public class RunSignac {
 		Options options = new Options();
 		options.addOption(learning);
 		options.addOption(transformation);
+		options.addOption(nClusters);
 		options.addOption(classifier);
 		options.addOption(classifierConfs);
 		options.addOption(trainData);
@@ -54,13 +57,13 @@ public class RunSignac {
 			System.exit(1);
 		}
 
-		ConfigLoader loader = null;
+		ConfigLoader loader;
 		try {
 			loader = new ConfigLoader("configurations/base_config.xml");
-		} catch (Exception e) {
-			e.printStackTrace();
+		} catch (ConfigurationException e) {
+			throw new RuntimeException(e);
 		}
-		assert loader != null;
+
 		Configuration configuration = loader.getConfiguration();
 		Configuration mlParams = null;
 		if (cmd.getOptionValue("l").equals("mi")) {
@@ -88,6 +91,10 @@ public class RunSignac {
 				configuration.setProperty("classifier.transformationMethod[@name]", "miml.transformation.mimlTOml.GeometricTransformation");
 			else if (cmd.getOptionValue("t").equals("minmax"))
 				configuration.setProperty("classifier.transformationMethod[@name]", "miml.transformation.mimlTOml.MinMaxTransformation");
+			else if (cmd.getOptionValue("t").equals("medoid")) {
+				configuration.setProperty("classifier.transformationMethod[@name]", "miml.transformation.mimlTOml.MedoidTransformation");
+				configuration.setProperty("classifier.transformationMethod.k", cmd.getOptionValue("k"));
+			}
 		} else if (cmd.getOptionValue("l").equals("miml")) {
 			configuration.setProperty("classifier[@name]", cmd.getOptionValue("c"));
 			try {
