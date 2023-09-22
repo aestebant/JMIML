@@ -83,7 +83,7 @@ public class RunSignac {
 			try {
 				mlParams = new ConfigLoader(cmd.getOptionValue("o")).getConfiguration();
 			} catch (ConfigurationException e) {
-				e.printStackTrace();
+				throw new RuntimeException(e);
 			}
 			if (cmd.getOptionValue("t").equals("arithmetic"))
 				configuration.setProperty("classifier.transformationMethod[@name]", "miml.transformation.mimlTOml.ArithmeticTransformation");
@@ -104,7 +104,7 @@ public class RunSignac {
 					configuration.addProperty("classifier." + key, mlParams.getProperty(key));
 				}
 			} catch (ConfigurationException e) {
-				e.printStackTrace();
+				throw new RuntimeException(e);
 			}
 		}
 
@@ -129,7 +129,7 @@ public class RunSignac {
 			ExperimentReport mimlReport = (ExperimentReport) loader.loadReport();
 			mimlReport.toJson(mimlEvaluator);
 		} catch (Exception e) {
-			e.printStackTrace();
+			throw new RuntimeException(e);
 		}
 	}
 }
