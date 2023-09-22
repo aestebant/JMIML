@@ -43,6 +43,7 @@ import java.util.Objects;
  * 1609-1616).</em>
  * </p>
  *
+ * @author Aurora Esteban
  * @author Alvaro A. Belmonte
  * @author Eva Gibaja
  * @author Amelia Zafra
@@ -144,46 +145,8 @@ public class MIMLClassifierToML extends MIMLClassifier {
 	 */
 	@Override
 	public void configure(Configuration configuration) {
-		// Get the string with the base classifier class
-		String classifierName = configuration.getString("multiLabelClassifier[@name]");
-		// Instance class
-		Class<? extends MultiLabelLearner> classifierClass = null;
-		try {
-			classifierClass = Class.forName(classifierName).asSubclass(MultiLabelLearner.class);
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-			System.exit(1);
-		}
-
 		Params params = Utils.readMultiLabelLearnerParams(configuration.subset("multiLabelClassifier"));
-		try {
-			this.baseClassifier = Objects.requireNonNull(classifierClass).getConstructor(params.getClasses())
-					.newInstance(params.getObjects());
-		} catch (Exception e) {
-			e.printStackTrace();
-			System.exit(1);
-		}
-
-		// Get the string with the base classifier class
-		String transformerName = configuration.getString("transformationMethod[@name]");
-		// Instance class
-		Class<? extends MIMLtoML> transformerClass = null;
-		try {
-			transformerClass = Class.forName(transformerName).asSubclass(MIMLtoML.class);
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-			System.exit(1);
-		}
-		try {
-			this.transformationMethod = Objects.requireNonNull(transformerClass).getConstructor().newInstance();
-		} catch (Exception e) {
-			e.printStackTrace();
-			System.exit(1);
-		}
-
-		ConfigParameters.setClassifierName(classifierName);
-		ConfigParameters.setTransformationMethod(transformerName);
-		ConfigParameters.setIsTransformation(true);
+		this.configure(configuration, params);
 	}
 
 	public void configure(Configuration configuration, Params params) {
