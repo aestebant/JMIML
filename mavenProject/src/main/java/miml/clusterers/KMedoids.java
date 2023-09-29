@@ -179,7 +179,7 @@ public class KMedoids extends RandomizableClusterer implements Clusterer {
                         int[] candidateAsignment = this.assignInstancesToMedoids(this.medoidIndices);
                         double candidateCost = this.computeCost(candidateAsignment);
                         if (this.compare(candidateCost, cost)) {
-                            this.clusterAssignment = (int[])candidateAsignment.clone();
+                            this.clusterAssignment = candidateAsignment.clone();
                             cost = candidateCost;
                             change = true;
                         } else {
@@ -197,7 +197,7 @@ public class KMedoids extends RandomizableClusterer implements Clusterer {
         }
 
         this.configurationCost = cost;
-        this.numIterations = (double)count;
+        this.numIterations = count;
     }
 
     protected void computeDistances(Instances data) throws Exception {
@@ -273,11 +273,20 @@ public class KMedoids extends RandomizableClusterer implements Clusterer {
     public double[] distanceToMedoids(Instance instance) throws Exception {
         this.metric.update(instance);
         double[] distances = new double[this.numClusters];
-
         for(int k = 0; k < this.numClusters; ++k) {
             distances[k] = this.metric.distance(this.medoidInstances[k], instance);
         }
+        return distances;
+    }
 
+    public double[] distanceToMedoids(int index) throws Exception {
+        if (index < 0 || index > this.numInstances) {
+            throw new Exception("Non registered instance with index " + index);
+        }
+        double[] distances = new double[this.numClusters];
+        for(int k = 0; k < this.numClusters; ++k) {
+            distances[k] = this.distances[index][this.medoidIndices[k]];
+        }
         return distances;
     }
 

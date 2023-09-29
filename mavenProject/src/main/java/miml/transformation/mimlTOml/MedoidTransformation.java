@@ -17,8 +17,8 @@ package miml.transformation.mimlTOml;
 import java.util.ArrayList;
 
 import miml.clusterers.KMedoids;
-import miml.core.distance.AverageHausdorff;
 import miml.core.distance.IDistance;
+import miml.core.distance.MaximalHausdorff;
 import miml.data.MIMLBag;
 import miml.data.MIMLInstances;
 import mulan.data.MultiLabelInstances;
@@ -93,7 +93,7 @@ public class MedoidTransformation extends MIMLtoML {
         super();
         this.percentClusters = 0.2F;
         this.normalize = false;
-        this.distanceMetric = new AverageHausdorff();
+        this.distanceMetric = new MaximalHausdorff();
     }
 
     /**
@@ -104,7 +104,7 @@ public class MedoidTransformation extends MIMLtoML {
      * @throws Exception To be handled in an upper level.
      */
     public MedoidTransformation(MIMLInstances dataset) throws Exception {
-        this(0.2F, false, new AverageHausdorff());
+        this(0.2F, false, new MaximalHausdorff());
         this.dataset = dataset;
     }
 
@@ -116,7 +116,7 @@ public class MedoidTransformation extends MIMLtoML {
      * @throws Exception To be handled in an upper level.
      */
     public MedoidTransformation(MIMLInstances dataset, int numClusters) throws Exception {
-        this(numClusters, false, new AverageHausdorff());
+        this(numClusters, false, new MaximalHausdorff());
         this.dataset = dataset;
     }
 
@@ -130,16 +130,16 @@ public class MedoidTransformation extends MIMLtoML {
      * @throws Exception To be handled in an upper level.
      */
     public MedoidTransformation(MIMLInstances dataset, float percentClusters) throws Exception {
-        this(percentClusters, false, new AverageHausdorff());
+        this(percentClusters, false, new MaximalHausdorff());
         this.dataset = dataset;
     }
 
     public MedoidTransformation(float percentClusters) throws Exception {
-        this(percentClusters, false, new AverageHausdorff());
+        this(percentClusters, false, new MaximalHausdorff());
     }
 
     public MedoidTransformation(int numClusters) throws Exception {
-        this(numClusters, false, new AverageHausdorff());
+        this(numClusters, false, new MaximalHausdorff());
     }
 
     /**
@@ -168,7 +168,7 @@ public class MedoidTransformation extends MIMLtoML {
             this.numClusters = (int) (this.dataset.getNumBags() * this.percentClusters);
             System.out.println("Number of clusters by percentaje (" + this.percentClusters + "): " + this.numClusters);
         }
-        this.kmedoids = new KMedoids(this.numClusters, 1000, this.distanceMetric);
+        this.kmedoids = new KMedoids(this.numClusters, 100, this.distanceMetric);
 
         System.out.println("Medoid Transformation.\n\tPerforming k-medoids clustering to transform the dataset.");
         kmedoids.buildClusterer(dataset.getDataSet());
@@ -193,16 +193,12 @@ public class MedoidTransformation extends MIMLtoML {
         double nBags = dataset.getNumBags();
         int numClusters = kmedoids.numberOfClusters();
         for (int i = 0; i < nBags; i++) {
-
             // retrieves a bag
             MIMLBag bag = dataset.getBag(i);
-
             // sets the bagLabel
             newInst.setValue(0, bag.value(0));
-
             // computes distances to medoids
-            double[] distance = kmedoids.distanceToMedoids(bag);
-
+            double[] distance = kmedoids.distanceToMedoids(i);
             // an attribute for medoid
             for (int k = 0, attIdx = 1; k < numClusters; k++, attIdx++) {
                 newInst.setValue(attIdx, distance[k]);
@@ -315,8 +311,7 @@ public class MedoidTransformation extends MIMLtoML {
     @Override
     public Instance transformInstance(MIMLBag bag) throws Exception {
         if (!clusteringDone)
-            throw new Exception(
-                    "The transformInstance method must be called after executing transformDataset that performs kmedoids clustering required by this kind of transformation.");
+            throw new Exception("The transformInstance method must be called after executing transformDataset that performs kmedoids clustering required by this kind of transformation.");
 
         int[] labelIndices = dataset.getLabelIndices();
         Instance newInst = new DenseInstance(template.numAttributes());
@@ -326,7 +321,7 @@ public class MedoidTransformation extends MIMLtoML {
         newInst.setValue(0, bag.value(0));
 
         // computes distances to medoids
-        double[] distance = this.kmedoids.distanceToMedoids(bag);
+        double[] distance = kmedoids.distanceToMedoids(bag);
 
         // an attribute for medoid
         int numClusters = kmedoids.numberOfClusters();
