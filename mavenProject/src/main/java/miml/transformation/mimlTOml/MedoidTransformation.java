@@ -88,50 +88,20 @@ public class MedoidTransformation extends MIMLtoML {
 
     /**
      * Constructor.
-     */
-    public MedoidTransformation() throws Exception {
-        super();
-        this.percentClusters = 0.2F;
-        this.normalize = false;
-        this.distanceMetric = new MaximalHausdorff();
-    }
-
-    /**
-     * Constructor. Uses the same default number of clusters as MIMLSVM: 20% of
-     * number of bags
      *
-     * @param dataset MIMLInstances dataset.
+     * @param percentClusters The number of clusters for k-medoids as a percentage of the number of bags. It is a value in (0,1). For instance, 0.2 is 20%.
+     * @param distanceMetric      The distance function to be used by k-medoids.
      * @throws Exception To be handled in an upper level.
      */
-    public MedoidTransformation(MIMLInstances dataset) throws Exception {
-        this(0.2F, false, new MaximalHausdorff());
-        this.dataset = dataset;
+    public MedoidTransformation(float percentClusters, boolean normalize, IDistance distanceMetric) throws Exception {
+        this.percentClusters = percentClusters;
+        this.normalize = normalize;
+        this.distanceMetric = distanceMetric;
     }
-
-    /**
-     * Constructor.
-     *
-     * @param dataset     MIMLInstances dataset.
-     * @param numClusters number of clusters for k-medoids.
-     * @throws Exception To be handled in an upper level.
-     */
-    public MedoidTransformation(MIMLInstances dataset, int numClusters) throws Exception {
-        this(numClusters, false, new MaximalHausdorff());
-        this.dataset = dataset;
-    }
-
-    /**
-     * Constructor.
-     *
-     * @param dataset    MIMLInstances dataset.
-     * @param percentClusters The number of clusters for k-medoids as a percentage of the
-     *                   number of bags. It is a value in (0,1). For instance, 0.2
-     *                   is 20%.
-     * @throws Exception To be handled in an upper level.
-     */
-    public MedoidTransformation(MIMLInstances dataset, float percentClusters) throws Exception {
-        this(percentClusters, false, new MaximalHausdorff());
-        this.dataset = dataset;
+    public MedoidTransformation(int numClusters, boolean normalize, IDistance distanceMetric) throws Exception {
+        this.numClusters = numClusters;
+        this.normalize = normalize;
+        this.distanceMetric = distanceMetric;
     }
 
     public MedoidTransformation(float percentClusters) throws Exception {
@@ -144,21 +114,9 @@ public class MedoidTransformation extends MIMLtoML {
 
     /**
      * Constructor.
-     *
-     * @param percentClusters The number of clusters for k-medoids as a percentage of the number of bags. It is a value in (0,1). For instance, 0.2 is 20%.
-     * @param distanceMetric      The distance function to be used by k-medoids.
-     * @throws Exception To be handled in an upper level.
      */
-    public MedoidTransformation(float percentClusters, boolean normalize, IDistance distanceMetric) throws Exception {
-        this.percentClusters = percentClusters;
-        this.normalize = normalize;
-        this.distanceMetric = distanceMetric;
-    }
-
-    public MedoidTransformation(int numClusters, boolean normalize, IDistance distanceMetric) throws Exception {
-        this.numClusters = numClusters;
-        this.normalize = normalize;
-        this.distanceMetric = distanceMetric;
+    public MedoidTransformation() throws Exception {
+        this(0.2F, false, new MaximalHausdorff());
     }
 
     protected void clusteringStep() throws Exception {
@@ -266,9 +224,7 @@ public class MedoidTransformation extends MIMLtoML {
         }
 
         // 2. Normalizes the dataset
-        if (isNormalized)
-            return dataset;
-        else {
+        if (!isNormalized) {
             for (int i = 0; i < dataset.getNumInstances(); i++) {
                 Instance instance = dataset.getDataSet().instance(i);
 
@@ -285,8 +241,8 @@ public class MedoidTransformation extends MIMLtoML {
                     instance.setValue(j, value);
                 }
             }
-            return dataset;
         }
+        return dataset;
     }
 
     /**

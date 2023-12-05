@@ -39,7 +39,7 @@ public abstract class MIMLtoML implements Serializable {
 	private static final long serialVersionUID = 7781084385932342107L;
 
 	/** Array of updated label indices. */
-	protected int updatedLabelIndices[];
+	protected int[] updatedLabelIndices;
 
 	/** Template to store Instances. */
 	protected Instances template = null;
@@ -105,11 +105,11 @@ public abstract class MIMLtoML implements Serializable {
 	 * @throws Exception To be handled in an upper level.
 	 */
 	protected void prepareTemplate() throws Exception {
-		int labelIndices[] = dataset.getLabelIndices();
+		int[] labelIndices = dataset.getLabelIndices();
 		Instances bags = dataset.getDataSet();
 
 		template = bags.attribute(1).relation().stringFreeStructure();
-		// insert a bag label attribute at the begining
+		// insert a bag label attribute at the beginning
 		Attribute bagLabel = bags.attribute(0);
 		template.insertAttributeAt(bagLabel, 0);
 

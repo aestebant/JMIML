@@ -21,6 +21,7 @@ import miml.core.Params;
 import miml.core.Utils;
 import miml.data.MIMLBag;
 import miml.data.MIMLInstances;
+import miml.transformation.mimlTOml.KMeansTransformation;
 import miml.transformation.mimlTOml.MIMLtoML;
 import miml.transformation.mimlTOml.MedoidTransformation;
 import mulan.classifier.MultiLabelLearner;
@@ -175,12 +176,12 @@ public class MIMLClassifierToML extends MIMLClassifier {
 		} catch (ClassNotFoundException e) {
 			throw new RuntimeException(e);
 		}
-		if (transformerClass == MedoidTransformation.class) {
+		if (transformerClass == MedoidTransformation.class || transformerClass == KMeansTransformation.class) {
 			Configuration transformerConf = configuration.subset("transformationMethod");
 			float k = transformerConf.getFloat("k");
 			//TODO: add rest of possible constructors
 			try {
-				if (k < 1) {
+				if (k <= 1) {
 					this.transformationMethod = Objects.requireNonNull(transformerClass).getConstructor(float.class).newInstance(k);
 				} else {
 					this.transformationMethod = Objects.requireNonNull(transformerClass).getConstructor(int.class).newInstance((int) k);
