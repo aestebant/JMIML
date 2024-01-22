@@ -40,13 +40,13 @@ public class MLDGC extends MultiLabelKNN {
 	private static final long serialVersionUID = -2053344207047059082L;
 
 	/** Neighborhood-based Gravitation Coefficient for each training example */
-	protected double NGC[] = null;
+	protected double[] NGC = null;
 
 	/** Densities */
-	protected double densities[] = null;
+	protected double[] densities = null;
 
 	/** Weights */
-	protected double weights[] = null;
+	protected double[] weights = null;
 
 	/** Searching of neighborhood */
 	protected LinearNNESearch elnn;
@@ -71,7 +71,7 @@ public class MLDGC extends MultiLabelKNN {
 	}
 
 	/**
-	 * Constructor initializing the number of neighbors. By default Euclidean
+	 * Constructor initializing the number of neighbors. By default, Euclidean
 	 * Distance.
 	 *
 	 * @param numOfNeighbors the number of neighbors
@@ -145,12 +145,12 @@ public class MLDGC extends MultiLabelKNN {
 	protected double labelDistance(Instance instance1, Instance instance2) {
 		double symmetricDifference = 0;
 		int activeLabels = 0;
-		for (int i = 0; i < this.labelIndices.length; i++) {
-			if (instance1.value(labelIndices[i]) != instance2.value(labelIndices[i]))
-				symmetricDifference++;
-			if ((Utils.eq(instance1.value(labelIndices[i]), 1.0)) || (Utils.eq(instance2.value(labelIndices[i]), 1.0)))
-				activeLabels++;
-		}
+        for (int labelIndex : this.labelIndices) {
+            if (instance1.value(labelIndex) != instance2.value(labelIndex))
+                symmetricDifference++;
+            if ((Utils.eq(instance1.value(labelIndex), 1.0)) || (Utils.eq(instance2.value(labelIndex), 1.0)))
+                activeLabels++;
+        }
 
 		return symmetricDifference / labelIndices.length; // HammingLoss
 		// return symmetricDifference / activeLabels; //Adjusted HammingLoss, considers
@@ -167,19 +167,16 @@ public class MLDGC extends MultiLabelKNN {
 	 *                 computed.
 	 */
 	protected void computeWeightDensity(Instances knn, Instance instance, int index) {
-		double weight = 1;
-		double density = 0;
-
-		double PdisY = 0;
-		double PdisF = 0;
-		double PdisY_disF = 0;
-
 		int k;
 		if (!extNeigh)
 			k = numOfNeighbors;
 		else
 			k = knn.numInstances();
 
+		double density = 0;
+		double PdisY = 0;
+		double PdisF = 0;
+		double PdisY_disF = 0;
 		for (int i = 0; i < k; i++) {
 			Instance neighbor = knn.instance(i);
 			double dl = labelDistance(instance, neighbor);
@@ -191,14 +188,13 @@ public class MLDGC extends MultiLabelKNN {
 			PdisF += df;
 			PdisY_disF += dl * df;
 		}
-
 		// compute density
 		density = 1 + density;
-
 		// compute weight
 		PdisY = PdisY / k;
 		PdisF = PdisF / k;
 		PdisY_disF = PdisY_disF / k;
+		double weight;
 		if ((PdisY == 0 || PdisY == 1))
 			weight = 0; //PROBAR CON 1
 		else
@@ -219,10 +215,10 @@ public class MLDGC extends MultiLabelKNN {
 		dfunc.update(instance);
 
 		boolean[] bipartition = new boolean[labelIndices.length];
-		double confidence[] = new double[labelIndices.length];
+		double[] confidence = new double[labelIndices.length];
 
 		Instances knn = elnn.kNearestNeighbours(instance, numOfNeighbors);
-		int indices[] = elnn.kNearestNeighboursIndices(instance, numOfNeighbors);
+		int[] indices = elnn.kNearestNeighboursIndices(instance, numOfNeighbors);
 
 		int k;
 		if (!extNeigh)
@@ -230,8 +226,8 @@ public class MLDGC extends MultiLabelKNN {
 		else
 			k = knn.numInstances();
 
-		double gforce[] = new double[k];
-		for (int index = 0, i = 0; i < k; i++) {
+		double[] gforce = new double[k];
+		for (int index, i = 0; i < k; i++) {
 			Instance particle = knn.instance(i);
 			index = indices[i];
 			double distance = dfunc.distance(instance, particle);
@@ -252,17 +248,12 @@ public class MLDGC extends MultiLabelKNN {
 			}
 
 			// computes bipartition and confidence
-			if (positiveGF > negativeGF)
-				bipartition[l] = true;
-			else
-				bipartition[l] = false;
+            bipartition[l] = positiveGF > negativeGF;
 
 			confidence[l] = positiveGF / (positiveGF + negativeGF);
 		}
 
-		MultiLabelOutput output = new MultiLabelOutput(bipartition, confidence);
-
-		return output;
+        return new MultiLabelOutput(bipartition, confidence);
 	}
 
 	/**
@@ -289,7 +280,7 @@ public class MLDGC extends MultiLabelKNN {
 		return null;
 	}
 
-	class LinearNNESearch extends LinearNNSearch {
+	protected static class LinearNNESearch extends LinearNNSearch {
 
 		/** For serialization */
 		private static final long serialVersionUID = 1L;
@@ -299,9 +290,6 @@ public class MLDGC extends MultiLabelKNN {
 		}
 
 		public int[] kNearestNeighboursIndices(Instance target, int kNN) throws Exception {
-
-			boolean print = false;
-
 			if (m_Stats != null)
 				m_Stats.searchStart();
 
@@ -314,8 +302,6 @@ public class MLDGC extends MultiLabelKNN {
 				if (m_Stats != null)
 					m_Stats.incrPointCount();
 				if (firstkNN < kNN) {
-					if (print)
-						System.out.println("K(a): " + (heap.size() + heap.noOfKthNearest()));
 					distance = m_DistanceFunction.distance(target, m_Instances.instance(i), Double.POSITIVE_INFINITY,
 							m_Stats);
 					if (distance == 0.0 && m_SkipIdentical)
@@ -327,7 +313,6 @@ public class MLDGC extends MultiLabelKNN {
 					firstkNN++;
 				} else {
 					MyHeapElement temp = heap.peek();
-					if (print)
 						System.out.println("K(b): " + (heap.size() + heap.noOfKthNearest()));
 					distance = m_DistanceFunction.distance(target, m_Instances.instance(i), temp.distance, m_Stats);
 					if (distance == 0.0 && m_SkipIdentical)
@@ -360,16 +345,15 @@ public class MLDGC extends MultiLabelKNN {
 
 			m_DistanceFunction.postProcessDistances(m_Distances);
 
-			for (int k = 0; k < indices.length; k++) {
-				neighbours.add(m_Instances.instance(indices[k]));
-			}
+            for (int index : indices) {
+                neighbours.add(m_Instances.instance(index));
+            }
 
 			if (m_Stats != null)
 				m_Stats.searchFinish();
 
 			return indices;
 		}
-
 	}
 
 }
