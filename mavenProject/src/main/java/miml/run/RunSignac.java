@@ -10,6 +10,8 @@ import org.apache.commons.cli.*;
 import org.apache.commons.configuration2.Configuration;
 import org.apache.commons.configuration2.ex.ConfigurationException;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Iterator;
 
 public class RunSignac {
@@ -115,6 +117,10 @@ public class RunSignac {
 		configuration.setProperty("evaluator.data.trainFile", cmd.getOptionValue("a"));
 		configuration.setProperty("evaluator.data.testFile", cmd.getOptionValue("e"));
 		configuration.setProperty("evaluator.data.xmlFile", cmd.getOptionValue("x"));
+		configuration.setProperty("evaluator.clusWorkingDir", "clusdata");
+		Path path = Paths.get(cmd.getOptionValue("a"));
+		String clusDataset = path.getFileName().toString();
+		configuration.setProperty("evaluator.clusDataset", clusDataset);
 
 		configuration.setProperty("report.fileName", cmd.getOptionValue("r"));
 

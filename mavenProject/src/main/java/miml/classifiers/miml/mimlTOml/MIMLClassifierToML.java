@@ -61,20 +61,21 @@ public class MIMLClassifierToML extends MIMLClassifier {
 	/**
 	 * A Generic MultiLabel classifier.
 	 */
-	protected MultiLabelLearner baseClassifier;
+	public MultiLabelLearner baseClassifier;
 
 	/**
 	 * The transform method.
 	 */
-	protected MIMLtoML transformationMethod;
+	public MIMLtoML transformationMethod;
+
+	public Remove removeFilter;
 
 	/**
 	 * The miml dataset.
 	 */
 	protected MIMLInstances mimlDataset;
 
-	Remove removeFilter;
-	MultiLabelInstances mlDataSetWithBagId;
+	protected MultiLabelInstances mlDataSetWithBagId;
 
 	/**
 	 * Basic constructor to initialize the classifier.

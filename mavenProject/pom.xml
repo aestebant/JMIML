@@ -170,6 +170,19 @@
 						<phase>clean</phase>
 						<goals><goal>install-file</goal></goals>
 						<configuration>
+							<groupId>Clus</groupId>
+							<artifactId>Clus</artifactId>
+							<version>1.0</version>
+							<packaging>jar</packaging>
+							<file>src/main/resources/Clus.jar</file>
+							<generatePom>true</generatePom>
+						</configuration>
+					</execution>
+					<execution>
+						<id>install4</id>
+						<phase>clean</phase>
+						<goals><goal>install-file</goal></goals>
+						<configuration>
 							<groupId>javabuilder</groupId>
 							<artifactId>javabuilder</artifactId>
 							<version>1.0</version>
@@ -187,7 +200,7 @@
 				<configuration>
 					<archive>
 						<manifest>
-							<mainClass>miml.run.RunAlgorithm</mainClass>
+							<mainClass>miml.run.RunSignac</mainClass>
 						</manifest>
 					</archive>
 					<descriptorRefs>
