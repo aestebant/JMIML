@@ -25,7 +25,6 @@ import mulan.classifier.MultiLabelOutput;
 import mulan.data.InvalidDataFormatException;
 import mulan.data.MultiLabelInstances;
 import mulan.evaluation.Evaluation;
-import mulan.evaluation.Evaluator;
 import mulan.evaluation.GroundTruth;
 import mulan.evaluation.measure.*;
 import org.apache.commons.configuration2.Configuration;
@@ -41,7 +40,7 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Class that allow evaluate an algorithm applying a holdout method.
+ * Class that allow to evaluate an algorithm applying a holdout method.
  *
  * @author Alvaro A. Belmonte
  * @author Eva Gibaja
@@ -126,7 +125,7 @@ public class EvaluatorHoldout implements IConfiguration, IEvaluator<Evaluation> 
 	 */
 	@Override
 	public void runExperiment(IMIMLClassifier classifier) {
-		Evaluator eval = new Evaluator();
+		MulanEvaluator eval = new MulanEvaluator();
 		System.out.println(new Date() + ": " + "Building model");
 		if (classifier instanceof MIMLClassifierToML && ((MIMLClassifierToML) classifier).baseClassifier instanceof RFPCT) {
 			((RFPCT) ((MIMLClassifierToML) classifier).baseClassifier).setClusWorkingDir(clusWorkingDir);
@@ -191,7 +190,7 @@ public class EvaluatorHoldout implements IConfiguration, IEvaluator<Evaluation> 
 			measures.add(new LogLoss());
 
             try {
-                eval.evaluate(((MIMLClassifierToML) classifier).baseClassifier, this.testData, measures);
+                eval.evaluate((RFPCT) ((MIMLClassifierToML) classifier).baseClassifier, this.testData, measures);
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
@@ -219,7 +218,7 @@ public class EvaluatorHoldout implements IConfiguration, IEvaluator<Evaluation> 
 
 	private LabelMatrix getLabelsClus(int nInstances, int nLabels) throws IOException {
 		LabelMatrix lm = new LabelMatrix(nInstances, nLabels);
-		Path filePath = Paths.get(clusWorkingDir, clusDataset +"-train.arff");
+		Path filePath = Paths.get(clusWorkingDir, clusDataset +"-train.test.pred.arff");
 		Instances inst = new Instances(new FileReader(filePath.toString()));
 		for(int i = 0; i < nInstances; ++i) {
 			for(int l = 0; l < nLabels; ++l) {

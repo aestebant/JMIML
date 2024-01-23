@@ -29,6 +29,9 @@ public class RFPCT extends MultiLabelLearnerBase {
     /** Whether numeric attributes are normalized. By default, false. */
     private boolean normalize;
 
+    public boolean isEnsemble = false;
+    public boolean isRuleBased = false;
+
     /**
      * Constructor.
      *
@@ -200,6 +203,12 @@ public class RFPCT extends MultiLabelLearnerBase {
     }
     public void setDatasetName(String datasetName) {
         this.datasetName = datasetName;
+    }
+    public String getClusWorkingDir() {
+        return clusWorkingDir;
+    }
+    public String getDatasetName() {
+        return datasetName;
     }
     public void setNumTrees(int numTrees) {
         this.numTrees = numTrees;
