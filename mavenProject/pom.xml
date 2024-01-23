@@ -112,6 +112,12 @@
 		</dependency>
 
 		<dependency>
+			<groupId>clus</groupId>
+			<artifactId>clus</artifactId>
+			<version>2.12</version>
+		</dependency>
+
+		<dependency>
 			<groupId>javabuilder</groupId>
 			<artifactId>javabuilder</artifactId>
 			<version>1.0</version>
@@ -170,9 +176,9 @@
 						<phase>clean</phase>
 						<goals><goal>install-file</goal></goals>
 						<configuration>
-							<groupId>Clus</groupId>
-							<artifactId>Clus</artifactId>
-							<version>1.0</version>
+							<groupId>clus</groupId>
+							<artifactId>clus</artifactId>
+							<version>2.12</version>
 							<packaging>jar</packaging>
 							<file>src/main/resources/Clus.jar</file>
 							<generatePom>true</generatePom>
