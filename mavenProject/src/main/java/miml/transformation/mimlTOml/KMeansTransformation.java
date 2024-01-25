@@ -122,46 +122,34 @@ public class KMeansTransformation extends MIMLtoML {
         System.out.println("\tseed=" + clusterer.getSeed());
         prepareTemplate();
         template.setRelationName(dataset.getDataSet().relationName() + "_kmeans_transformation");
-
-        // prototypes are the instances closest to the cluster centroids
-        Instances centroids = clusterer.getClusterCentroids();
         dfunc = new EuclideanDistance();
         dfunc.setInstances(singleInstances);
+        // prototypes are the instances closest to the cluster centroids
+        Instances centroids = clusterer.getClusterCentroids();
         for (int k = 0; k < centroids.numInstances(); k++)
             dfunc.update(centroids.instance(k));
         double[][] distanceMatrix = computeDistanceMatrix(centroids, singleInstances);
         int[] clusterAssignment = clusterAssignment(distanceMatrix);
         int[] prototypesIndex = computeIndexPrototypes(distanceMatrix);
-
         int nClusters = distanceMatrix[0].length;
         prototypes = new Instances(singleInstances, 0); // creates empty datasest
-        for (int k = 0; k < nClusters; k++) {
-            prototypes.add(singleInstances.instance(prototypesIndex[k]));
-        }
-
-        // computes the value of delta as the average distance between instances in one
-        // cluster
+        for (int k = 0; k < nClusters; k++) prototypes.add(singleInstances.instance(prototypesIndex[k]));
+        // computes the value of delta as the average distance between instances in one cluster
         double[] delta = computeDelta(clusterAssignment, singleInstances);
 
         // 2. TRANSFORMATION STEP
-
         Instances newData = new Instances(template);
         int[] labelIndices = dataset.getLabelIndices();
         Instance newInst = new DenseInstance(newData.numAttributes());
         newInst.setDataset(newData); // Sets the reference to the dataset
-
         for (int i = 0; i < nBags; i++) {
-
             MIMLBag bag = dataset.getBag(i);
-
             // sets the bagLabel
             newInst.setValue(0, bag.value(0));
-
             for (int k = 0, attIdx = 1; k < nClusters; k++, attIdx++) {
                 double sim = similarity(singleInstances.instance(prototypesIndex[k]), bag, delta[k]);
                 newInst.setValue(attIdx, sim);
             }
-
             // Copy label information into the dataset
             for (int j = 0; j < labelIndices.length; j++) {
                 newInst.setValue(updatedLabelIndices[j], bag.value(labelIndices[j]));
@@ -173,48 +161,49 @@ public class KMeansTransformation extends MIMLtoML {
 
     @Override
     public MultiLabelInstances transformDataset(MIMLInstances dataset) throws Exception {
-        this.dataset = dataset;
-        return transformDataset();
+        if (!clusteringDone) {
+            this.dataset = dataset;
+            return transformDataset();
+        }
+        Instances newData = new Instances(this.template);
+        for (int i = 0; i < dataset.getNumBags(); ++i) {
+            MIMLBag bag = dataset.getBag(i);
+            Instance transformedBag = this.transformInstance(bag);
+            newData.add(transformedBag);
+        }
+        return new MultiLabelInstances(newData, dataset.getLabelsMetaData());
     }
 
     @Override
     public Instance transformInstance(MIMLBag bag) throws Exception {
         if (!clusteringDone)
-            throw new Exception(
-                    "The transformInstance method must be called after executing transformDataset that performs kmeans clustering required by this kind of transformation.");
+            throw new Exception("The transformInstance method must be called after executing transformDataset that performs kmeans clustering required by this kind of transformation.");
 
         int[] labelIndices = dataset.getLabelIndices();
         Instance newInst = new DenseInstance(template.numAttributes());
-
         // sets the bagLabel
         newInst.setDataset(bag.dataset()); // Sets the reference to the dataset
         newInst.setValue(0, bag.value(0));
-
         // an attribute per centroid
         int numClusters = clusterer.getNumClusters();
         for (int k = 0, attIdx = 1; k < numClusters; k++, attIdx++) {
             double sim = similarity(prototypes.instance(k), bag, delta[k]);
             newInst.setValue(attIdx, sim);
         }
-
         // Insert label information into the instance
         for (int j = 0; j < labelIndices.length; j++) {
             newInst.setValue(updatedLabelIndices[j], bag.value(labelIndices[j]));
         }
-
         return newInst;
     }
 
     @Override
     protected void prepareTemplate() throws Exception {
         int attrIndex = 0;
-
         ArrayList<Attribute> attributes = new ArrayList<>();
-
         // insert a bag label attribute at the beginning
         Attribute attr = dataset.getDataSet().attribute(0);
         attributes.add(attr);
-
         // Adds attributes for prototypes
         int numClusters = clusterer.getNumClusters();
         for (int k = 1; k <= numClusters; k++) {
@@ -222,7 +211,6 @@ public class KMeansTransformation extends MIMLtoML {
             attributes.add(attr);
             attrIndex++;
         }
-
         // Insert labels as attributes in the dataset
         int[] labelIndices = dataset.getLabelIndices();
         updatedLabelIndices = new int[labelIndices.length];
@@ -235,7 +223,6 @@ public class KMeansTransformation extends MIMLtoML {
             attrIndex++;
             updatedLabelIndices[i] = attrIndex;
         }
-
         template = new Instances("templatePrototype", attributes, 0);
     }
 
@@ -285,7 +272,6 @@ public class KMeansTransformation extends MIMLtoML {
         for (int k = 0; k < nClusters; k++) {
             minIndex[k] = 0;
             for (int i = 1; i < nInstances; i++) {
-
                 if (distanceMatrix[i][k] < distanceMatrix[minIndex[k]][k]) {
                     minIndex[k] = i;
                 }
@@ -334,17 +320,13 @@ public class KMeansTransformation extends MIMLtoML {
      */
     protected double similarity(Instance centroid, MIMLBag bag, double delta_k) throws Exception {
         double min_sim = 0;
-
         Instances instances = bag.getBagAsInstances();
         for (int j = 0; j < instances.numInstances(); j++) {
             double dist = dfunc.distance(centroid, instances.instance(j));
             double sim = Math.exp(-((dist * dist) / delta_k));
-            if (j == 0)
-                min_sim = sim;
-            if (sim < min_sim)
-                min_sim = sim;
+            if (j == 0) min_sim = sim;
+            if (sim < min_sim) min_sim = sim;
         }
-
         return min_sim;
     }
 
@@ -359,10 +341,8 @@ public class KMeansTransformation extends MIMLtoML {
      * @return A vector of nClusters with the delta value for each cluster.
      */
     protected double[] computeDelta(int[] clusterAssignment, Instances singleInstances) {
-
         int nClusters = clusterAssignment.length;
         int nInstances = singleInstances.numInstances();
-
         delta = new double[nClusters];
 
         for (int k = 0; k < nClusters; k++) {
@@ -381,7 +361,6 @@ public class KMeansTransformation extends MIMLtoML {
             }
             delta[k] = sumDistances_k / instances_k;
         }
-
         return delta;
     }
 

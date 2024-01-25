@@ -120,14 +120,7 @@ public class MedoidTransformation extends MIMLtoML {
     }
 
     protected void clusteringStep() throws Exception {
-        if (this.numClusters != -1) {
-            System.out.println("Number of clusters fixed: " + this.numClusters);
-        } else {
-            this.numClusters = (int) (this.dataset.getNumBags() * this.percentClusters);
-            System.out.println("Number of clusters by percentaje (" + this.percentClusters + "): " + this.numClusters);
-        }
-        this.kmedoids = new KMedoids(this.numClusters, 100, this.distanceMetric);
-
+        configureClusterer();
         System.out.println("Medoid Transformation.\n\tPerforming k-medoids clustering to transform the dataset.");
         kmedoids.buildClusterer(dataset.getDataSet());
         clusteringDone = true;
@@ -140,13 +133,11 @@ public class MedoidTransformation extends MIMLtoML {
     public MultiLabelInstances transformDataset() throws Exception {
         // Clustering with kmedoids step
         clusteringStep();
-
         // Transformation step
         Instances newData = new Instances(template);
         int[] labelIndices = dataset.getLabelIndices();
         Instance newInst = new DenseInstance(newData.numAttributes());
         newInst.setDataset(newData); // Sets the reference to the dataset
-
         // For all bags in the dataset
         double nBags = dataset.getNumBags();
         int numClusters = kmedoids.numberOfClusters();
@@ -176,8 +167,17 @@ public class MedoidTransformation extends MIMLtoML {
 
     @Override
     public MultiLabelInstances transformDataset(MIMLInstances dataset) throws Exception {
-        this.dataset = dataset;
-        return transformDataset();
+        if (!this.clusteringDone) {
+            this.dataset = dataset;
+            return transformDataset();
+        }
+        Instances newData = new Instances(this.template);
+        for (int i = 0; i < dataset.getNumBags(); ++i) {
+            MIMLBag bag = dataset.getBag(i);
+            Instance transformedBag = this.transformInstance(bag);
+            newData.add(transformedBag);
+        }
+        return new MultiLabelInstances(newData, dataset.getLabelsMetaData());
     }
 
     /**
@@ -188,20 +188,17 @@ public class MedoidTransformation extends MIMLtoML {
      * @throws Exception To be handled in an upper level.
      */
     protected MultiLabelInstances normalize(MultiLabelInstances dataset) throws Exception {
-
         // 1. Computes statistics to perform normalization
         // number of attributes including the bagID attribute
         int nFeatures = dataset.getFeatureAttributes().size();
         double[] Max = new double[nFeatures];
         double[] Min = new double[nFeatures];
         double[] Range = new double[nFeatures];
-
         for (int i = 0; i < nFeatures; i++) {
             Max[i] = Double.NEGATIVE_INFINITY;
             Min[i] = Double.POSITIVE_INFINITY;
             Range[i] = 0;
         }
-
         boolean isNormalized = true;
         for (int i = 0; i < dataset.getNumInstances(); i++) {
             Instance instance = dataset.getDataSet().instance(i);
@@ -217,7 +214,6 @@ public class MedoidTransformation extends MIMLtoML {
                 }
             }
         }
-
         // j=1 to ignore the bagId attribute
         for (int i = 1; i < nFeatures; i++) {
             Range[i] = Max[i] - Min[i];
@@ -227,11 +223,9 @@ public class MedoidTransformation extends MIMLtoML {
         if (!isNormalized) {
             for (int i = 0; i < dataset.getNumInstances(); i++) {
                 Instance instance = dataset.getDataSet().instance(i);
-
                 // j=1 to ignore the bagId attribute
                 for (int j = 1; j < nFeatures; j++) {
                     double value = instance.value(j);
-
                     // to avoid dividing by zero in case of a 0 range
                     if (Double.compare(Min[j], Max[j]) != 0) {
                         value = (value - Min[j]) / (Range[j]);
@@ -271,20 +265,16 @@ public class MedoidTransformation extends MIMLtoML {
 
         int[] labelIndices = dataset.getLabelIndices();
         Instance newInst = new DenseInstance(template.numAttributes());
-
         // sets the bagLabel
         newInst.setDataset(bag.dataset()); // Sets the reference to the dataset
         newInst.setValue(0, bag.value(0));
-
         // computes distances to medoids
         double[] distance = kmedoids.distanceToMedoids(bag);
-
         // an attribute for medoid
         int numClusters = kmedoids.numberOfClusters();
         for (int k = 0, attIdx = 1; k < numClusters; k++, attIdx++) {
             newInst.setValue(attIdx, distance[k]);
         }
-
         // Insert label information into the instance
         for (int j = 0; j < labelIndices.length; j++) {
             newInst.setValue(updatedLabelIndices[j], bag.value(labelIndices[j]));
@@ -296,11 +286,9 @@ public class MedoidTransformation extends MIMLtoML {
     protected void prepareTemplate() throws Exception {
         int attrIndex = 0;
         ArrayList<Attribute> attributes = new ArrayList<>();
-
         // insert a bag label attribute at the beginning
         Attribute attr = dataset.getDataSet().attribute(0);
         attributes.add(attr);
-
         // Adds attributes for medodis
         int numClusters = kmedoids.numberOfClusters();
         for (int k = 1; k <= numClusters; k++) {
@@ -308,7 +296,6 @@ public class MedoidTransformation extends MIMLtoML {
             attributes.add(attr);
             attrIndex++;
         }
-
         // Insert labels as attributes in the dataset
         int[] labelIndices = dataset.getLabelIndices();
         updatedLabelIndices = new int[labelIndices.length];
@@ -321,8 +308,17 @@ public class MedoidTransformation extends MIMLtoML {
             attrIndex++;
             updatedLabelIndices[i] = attrIndex;
         }
-
         template = new Instances("templateMedoid", attributes, 0);
+    }
+
+    void configureClusterer() throws Exception {
+        if (this.numClusters != -1) {
+            System.out.println("Number of clusters fixed: " + this.numClusters);
+        } else {
+            this.numClusters = (int) (this.dataset.getNumBags() * this.percentClusters);
+            System.out.println("Number of clusters by percentaje (" + this.percentClusters + "): " + this.numClusters);
+        }
+        this.kmedoids = new KMedoids(this.numClusters, 100, this.distanceMetric);
     }
 
     /**
