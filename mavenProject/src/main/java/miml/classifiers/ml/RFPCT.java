@@ -117,7 +117,6 @@ public class RFPCT extends MultiLabelLearnerBase {
     protected MultiLabelOutput makePredictionInternal(Instance instance) throws Exception {
         double[] confidences = new double[numLabels];
         return new MultiLabelOutput(confidences, 0.5);
-
     }
 
     @Override

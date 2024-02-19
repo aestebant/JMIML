@@ -190,24 +190,13 @@ public class EvaluatorHoldout implements IConfiguration, IEvaluator<Evaluation> 
 			measures.add(new LogLoss());
 
             try {
-                eval.evaluate((RFPCT) ((MIMLClassifierToML) classifier).baseClassifier, this.testData, measures);
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-            LabelMatrix lm;
-            try {
-                lm = getLabelsClus(this.testData.getNumInstances(), this.trainData.getNumLabels());
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-            try {
-                this.evaluation = evaluate(lm.realLabels, lm.predLabels, measures);
+                this.evaluation = eval.evaluate((RFPCT) ((MIMLClassifierToML) classifier).baseClassifier, this.testData, measures);
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
         } else {
 			try {
-				evaluation = eval.evaluate(classifier, testData, trainData);
+				this.evaluation = eval.evaluate(classifier, testData, trainData);
 			} catch (Exception e) {
 				throw new RuntimeException(e);
 			}
@@ -215,61 +204,6 @@ public class EvaluatorHoldout implements IConfiguration, IEvaluator<Evaluation> 
 		estimatedTime = System.nanoTime() - startTime;
 		testTime = TimeUnit.NANOSECONDS.toMillis(estimatedTime);
 	}
-
-	private LabelMatrix getLabelsClus(int nInstances, int nLabels) throws IOException {
-		LabelMatrix lm = new LabelMatrix(nInstances, nLabels);
-		Path filePath = Paths.get(clusWorkingDir, clusDataset +"-train.test.pred.arff");
-		Instances inst = new Instances(new FileReader(filePath.toString()));
-		for(int i = 0; i < nInstances; ++i) {
-			for(int l = 0; l < nLabels; ++l) {
-				int v = (int)inst.get(i).value(l);
-				if (v == 1) {
-					lm.realLabels[i][l] = 0;
-				} else {
-					lm.realLabels[i][l] = 1;
-				}
-				v = (int)inst.get(i).value(l + nLabels);
-				if (v == 1) {
-					lm.predLabels[i][l] = 0;
-				} else {
-					lm.predLabels[i][l] = 1;
-				}
-			}
-		}
-		return lm;
-	}
-
-	private static Evaluation evaluate(int[][] groundTruth, int[][] predictedLabels, List<Measure> measures) throws Exception {
-        for (Measure m : measures) {
-            m.reset();
-        }
-		int numLabels = groundTruth[0].length;
-		Set<Measure> failed = new HashSet<>();
-		int numInstances = groundTruth.length;
-
-		for(int i = 0; i < numInstances; ++i) {
-			boolean[] predBool = new boolean[numLabels];
-			boolean[] realBool = new boolean[numLabels];
-			for(int j = 0; j < numLabels; ++j) {
-                predBool[j] = predictedLabels[i][j] == 1;
-                realBool[j] = groundTruth[i][j] == 1;
-			}
-			MultiLabelOutput output2 = new MultiLabelOutput(predBool);
-			GroundTruth truth2 = new GroundTruth(realBool);
-
-            for (Measure m : measures) {
-                if (!failed.contains(m)) {
-                    try {
-                        m.update(output2, truth2);
-                    } catch (Exception var14) {
-                        failed.add(m);
-                    }
-                }
-            }
-		}
-		return new Evaluation(measures, null);
-	}
-
 
 	/**
 	 * Gets the time spent in training.
@@ -354,15 +288,5 @@ public class EvaluatorHoldout implements IConfiguration, IEvaluator<Evaluation> 
 		this.clusWorkingDir = configuration.getString("clusWorkingDir", "clusFolder");
 		this.clusDataset = configuration.getString("clusDataset", "clusDataset");
 		ConfigParameters.setDataFileName(new File(arffFileTrain).getName());
-	}
-
-	private static class LabelMatrix {
-		public int[][] realLabels;
-		public int[][] predLabels;
-
-		public LabelMatrix(int nInstances, int nLabels) {
-			this.realLabels = new int[nInstances][nLabels];
-			this.predLabels = new int[nInstances][nLabels];
-		}
 	}
 }
