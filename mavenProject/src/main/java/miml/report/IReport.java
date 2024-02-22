@@ -39,7 +39,7 @@ public interface IReport {
 	 * @throws Exception To be handled in an upper level.
 	 */
 	@SuppressWarnings("rawtypes")
-	public String toCSV(IEvaluator evaluator) throws Exception;
+	String toCSV(IEvaluator evaluator) throws Exception;
 
 	/**
 	 * Convert to plain text the evaluator results.
@@ -51,15 +51,14 @@ public interface IReport {
 	 * @throws Exception To be handled in an upper level.
 	 */
 	@SuppressWarnings("rawtypes")
-	public String toString(IEvaluator evaluator) throws Exception;
+	String toString(IEvaluator evaluator) throws Exception;
 
 	/**
 	 * Save in a file the specified report.
 	 *
 	 * @param report The formatted string to be saved.
-	 * 
+	 *
 	 * @throws FileNotFoundException To be handled in an upper level.
 	 */
-	public void saveReport(String report) throws FileNotFoundException;
-
+	void saveReport(String report) throws FileNotFoundException;
 }

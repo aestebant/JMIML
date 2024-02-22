@@ -35,11 +35,11 @@ public class ExperimentReport extends BaseMIMLReport {
         if (!file.getParentFile().mkdirs()) {
             return "ERROR: unable to create report file";
         }
-        boolean writeHeader = true;
+        boolean writeHeader;
         try {
             writeHeader = file.createNewFile();
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new RuntimeException();
         }
 
         Evaluation evaluationHoldout = (Evaluation) evaluator.getEvaluation();
@@ -73,7 +73,7 @@ public class ExperimentReport extends BaseMIMLReport {
                     }
                 }
             }
-            result.append(System.getProperty("line.separator"));
+            result.append(System.lineSeparator());
         }
 
         if(ConfigParameters.getIsTransformation()) {
@@ -90,12 +90,11 @@ public class ExperimentReport extends BaseMIMLReport {
                     result.append(((MacroAverageMeasure) m).getValue(i)).append(",");
                 }
             }
-
         }
-        result.append(System.getProperty("line.separator"));
+        result.append(System.lineSeparator());
 
         Files.write(Paths.get(filename), result.toString().getBytes(), StandardOpenOption.APPEND);
-        System.out.println("" + new Date() + ": " + "Experiment results saved in " + filename);
+        System.out.println(new Date() + ": " + "Experiment results saved in " + filename);
 
         return result.toString();
     }
@@ -106,8 +105,8 @@ public class ExperimentReport extends BaseMIMLReport {
         EvaluatorHoldout holdoutEval = (EvaluatorHoldout) evaluator;
 
         JSONObject result = new JSONObject();
-        result.put("train_time", holdoutEval.getTrainTime());
-        result.put("test_time", holdoutEval.getTestTime());
+        result.put("Train time (ms)", holdoutEval.getTrainTime());
+        result.put("Test time (ms)", holdoutEval.getTestTime());
 
         // All evaluator measures
         List<Measure> measures = holdoutEval.getEvaluation().getMeasures();

@@ -88,18 +88,13 @@ public abstract class MIMLReport implements IReport, IConfiguration {
 	 * @throws Exception To be handled in an upper level.
 	 */
 	protected List<Measure> filterMeasures(List<Measure> allMeasures) throws Exception {
-
-		List<Measure> measures = new ArrayList<Measure>();
-
+		List<Measure> measures = new ArrayList<>();
 		for (String s : this.measures) {
-
 			for (Measure m : allMeasures) {
-
 				if (m.getName().equals(s))
 					measures.add(m.makeCopy());
 			}
 		}
-
 		return measures;
 	}
 
@@ -111,19 +106,16 @@ public abstract class MIMLReport implements IReport, IConfiguration {
 	 */
 	@Override
 	public void saveReport(String report) throws FileNotFoundException {
-
 		File file = new File(filename);
 		if (file.getParentFile() != null) {
 			file.getParentFile().mkdirs();
 		}
-
 		try {
 			file.createNewFile();
 			Files.write(Paths.get(filename), report.getBytes(), StandardOpenOption.APPEND);
-			System.out.println("" + new Date() + ": " + "Experiment results saved in " + filename);
-
+			System.out.println(new Date() + ": " + "Experiment results saved in " + filename);
 		} catch (IOException e) {
-			e.printStackTrace();
+			throw new RuntimeException(e);
 		}
 	}
 
@@ -194,7 +186,7 @@ public abstract class MIMLReport implements IReport, IConfiguration {
 	/**
 	 * Sets if measure for each label (macro-averaged measures) is shown.
 	 * 
-	 * @param labels The new labels configuration.
+	 * @param labels The new labels' configuration.
 	 */
 	public void setLabels(boolean labels) {
 		this.labels = labels;
@@ -217,5 +209,4 @@ public abstract class MIMLReport implements IReport, IConfiguration {
 	public void setHeader(boolean header) {
 		this.header = header;
 	}
-
 }
