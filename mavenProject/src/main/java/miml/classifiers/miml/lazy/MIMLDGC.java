@@ -75,5 +75,4 @@ public class MIMLDGC extends MultiInstanceMultiLabelKNN {
 		this.classifier = new MLDGC(numOfNeighbours);
 		((MLDGC) classifier).setExtNeigh(extNeigh);
 	}
-
 }

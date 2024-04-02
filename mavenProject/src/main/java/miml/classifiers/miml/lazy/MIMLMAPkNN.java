@@ -22,7 +22,7 @@ import mulan.classifier.lazy.MLkNN;
  * MIMLMAPkNN is the adaptation to the MIML framework of the MLkNN[1]
  * multi-label algorithm. To perform this adaptation, MIMLMAPkNN maintains the
  * treatment of labels of MLkNN but uses a multi-instance measure of distance.
- * 
+ * <p>
  * <em> [1] Min-Ling Zhang, Zhi-Hua Zhou (2007). ML-KNN: A lazy learning
  * approach to multi-label learning. Pattern Recogn.. 40(7):2038--2048. </em>
  */
@@ -43,8 +43,7 @@ public class MIMLMAPkNN extends MultiInstanceMultiLabelKNN {
 	 */
 	public MIMLMAPkNN(MIMLDistanceFunction metric) {
 		super(metric, 10);
-		this.smooth = 1.0;
-		this.classifier = new MLkNN(10, smooth);
+        this.classifier = new MLkNN(10, smooth);
 	}
 
 	/**
@@ -56,8 +55,7 @@ public class MIMLMAPkNN extends MultiInstanceMultiLabelKNN {
 	 */
 	public MIMLMAPkNN(int numOfNeighbours, MIMLDistanceFunction metric) {
 		super(metric, numOfNeighbours);
-		this.smooth = 1.0;
-		this.classifier = new MLkNN(numOfNeighbours, smooth);
+        this.classifier = new MLkNN(numOfNeighbours, smooth);
 	}
 
 	/**

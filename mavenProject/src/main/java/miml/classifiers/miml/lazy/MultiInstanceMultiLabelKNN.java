@@ -89,8 +89,7 @@ public abstract class MultiInstanceMultiLabelKNN extends MIMLClassifier {
 			// //Java 8
 			this.metric = new MIMLDistanceFunction(metricClass.getDeclaredConstructor().newInstance()); // Java 9
 		} catch (Exception e) {
-			e.printStackTrace();
-			System.exit(1);
+			throw new RuntimeException(e);
 		}
 
 	}
@@ -111,11 +110,9 @@ public abstract class MultiInstanceMultiLabelKNN extends MIMLClassifier {
 	protected MultiLabelOutput makePredictionInternal(MIMLBag instance) throws Exception, InvalidDataException {
 
 		IDistance m = metric.getMetric();
-		((HausdorffDistance) m).update(instance);
+		m.update(instance);
 
-		MultiLabelOutput predictions = classifier.makePrediction(instance);
-
-		return predictions;
+        return classifier.makePrediction(instance);
 	}
 
 	/**

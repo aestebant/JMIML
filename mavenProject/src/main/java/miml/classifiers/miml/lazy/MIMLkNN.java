@@ -252,8 +252,8 @@ public class MIMLkNN extends MIMLClassifier {
 		// Nearest neighbours of the selected bag
 		int[] nearestNeighbours = new int[num_references];
 		// Store indices in priority queue, sorted by distance to selected bag
-		PriorityQueue<Integer> pq = new PriorityQueue<Integer>(d_size,
-				(a, b) -> Double.compare(distance_matrix[indexBag][a], distance_matrix[indexBag][b]));
+		PriorityQueue<Integer> pq = new PriorityQueue<>(d_size,
+                (a, b) -> Double.compare(distance_matrix[indexBag][a], distance_matrix[indexBag][b]));
 
 		for (int i = 0; i < d_size; ++i) {
 			if (i != indexBag)
@@ -304,7 +304,7 @@ public class MIMLkNN extends MIMLClassifier {
 			if (ref_matrix[i][indexBag] == 1)
 				pq.add(i);
 
-		int citers = (num_citers < pq.size()) ? num_citers : pq.size();
+		int citers = Math.min(num_citers, pq.size());
 		// Nearest citers of the selected bag
 		int[] nearestCiters = new int[citers];
 		// Get the C (num_citers or pq.size()) nearest citers
@@ -330,13 +330,10 @@ public class MIMLkNN extends MIMLClassifier {
 		// Union references and citers sets
 		Set<Integer> set = new HashSet<Integer>();
 
-		for (int j = 0; j < references.length; j++)
-			set.add(references[j]);
-		for (int j = 0; j < citers.length; j++)
-			set.add(citers[j]);
+        for (int reference : references) set.add(reference);
+        for (int citer : citers) set.add(citer);
 
-		Integer[] union = set.toArray(new Integer[set.size()]);
-		return union;
+        return set.toArray(new Integer[set.size()]);
 	}
 
 	/**
@@ -350,12 +347,12 @@ public class MIMLkNN extends MIMLClassifier {
 
 		double[] labelCount = new double[numLabels];
 
-		for (int i = 0; i < indices.length; ++i) {
-			for (int j = 0; j < numLabels; ++j) {
-				if (dataset.getDataSet().instance(indices[i]).stringValue(labelIndices[j]).equals("1"))
-					labelCount[j]++;
-			}
-		}
+        for (Integer index : indices) {
+            for (int j = 0; j < numLabels; ++j) {
+                if (dataset.getDataSet().instance(index).stringValue(labelIndices[j]).equals("1"))
+                    labelCount[j]++;
+            }
+        }
 		return labelCount;
 	}
 
@@ -438,7 +435,7 @@ public class MIMLkNN extends MIMLClassifier {
 		for (int i = 0; i < numLabels; ++i)
 			decision += weights[i] * record[i];
 
-		return (decision > 0.3) ? true : false;
+		return decision > 0.3;
 	}
 
 	/**
@@ -503,8 +500,7 @@ public class MIMLkNN extends MIMLClassifier {
 			// this.metric = metricClass.newInstance(); //Java 8
 			this.metric = metricClass.getDeclaredConstructor().newInstance(); // Java 9
 		} catch (Exception e) {
-			e.printStackTrace();
-			System.exit(1);
+			throw new RuntimeException(e);
 		}
 	}
 }

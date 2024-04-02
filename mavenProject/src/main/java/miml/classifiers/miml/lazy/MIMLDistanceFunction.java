@@ -75,7 +75,7 @@ public class MIMLDistanceFunction extends NormalizableDistance {
 			finalDistance = metric.distance(first, second);
 
 		} catch (Exception e) {
-			e.printStackTrace();
+			throw new RuntimeException(e);
 		}
 
 		return finalDistance;
@@ -153,7 +153,6 @@ public class MIMLDistanceFunction extends NormalizableDistance {
 	 */
 	@Override
 	public Instances getInstances() {
-
 		return super.getInstances();
 	}
 
@@ -187,7 +186,6 @@ public class MIMLDistanceFunction extends NormalizableDistance {
 	@Override
 	public void setInvertSelection(boolean value) {
 		// TODO Auto-generated method stub
-
 	}
 
 	/*
@@ -209,7 +207,6 @@ public class MIMLDistanceFunction extends NormalizableDistance {
 	@Override
 	public void postProcessDistances(double[] distances) {
 		// TODO Auto-generated method stub
-
 	}
 
 	/*
@@ -248,5 +245,4 @@ public class MIMLDistanceFunction extends NormalizableDistance {
 		// TODO Auto-generated method stub
 		return 0;
 	}
-
 }
