@@ -5,8 +5,8 @@ import mulan.classifier.transformation.Pairwise;
 import weka.classifiers.Classifier;
 import weka.core.Instance;
 
-public class MLPairwise extends Pairwise {
-    public MLPairwise(Classifier classifier) {
+public class RPC extends Pairwise {
+    public RPC(Classifier classifier) {
         super(classifier);
         soft = false;
     }
